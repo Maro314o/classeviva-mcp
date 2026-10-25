@@ -45,10 +45,12 @@ Il server della configurazione ascolta solo su `127.0.0.1`; il link è casuale, 
 - `list_noticeboard`: elenca gli avvisi senza marcarli come letti.
 - `get_notice_attachment`: legge un allegato usando `event_code` e `publication_id` dell'avviso.
 - `list_didactics`: elenca i materiali didattici.
-- `get_didactics_item`: legge un materiale usando `content_id` restituito da `list_didactics`.
+- `download_didactics_item`: salva un materiale didattico in un file locale. Richiede `content_id` e il percorso assoluto completo `destination_path`; non sovrascrive file esistenti.
+
+`list_didactics` recupera solo i metadati e non scarica gli allegati. Per sapere quali materiali esistono, i loro nomi o altre informazioni già presenti nell’elenco, usa solo `list_didactics`. Per leggere o analizzare un documento, scaricalo prima con `download_didactics_item` e poi apri il file locale. Non esiste un comando che invii il contenuto del documento all’agente senza salvarlo. Specifica sempre il percorso assoluto completo nel comando; se l’utente non ha indicato dove salvarlo, chiedigli il percorso prima di invocare lo strumento. Se il file esiste già, scegli un altro percorso solo dopo averlo concordato con l’utente.
 
 Per «domani», «oggi» o un giorno della settimana, determina prima la data di calendario nel fuso orario dell'utente, se noto, e passala a `get_agenda` nel formato `YYYY-MM-DD`. Se il fuso orario può cambiare il giorno e non è noto, chiedilo.
 
 ## Limiti
 
-Le chiamate a ClasseViva sono di sola lettura: non segnare avvisi come letti, non caricare file e non inviare modifiche. Presenta i risultati con date e materie quando disponibili; distingui chiaramente gli eventuali allegati o file restituiti dagli altri risultati.
+Le chiamate a ClasseViva sono di sola lettura: non segnare avvisi come letti, non caricare file e non inviare modifiche al servizio. L'unica scrittura locale è `download_didactics_item`, da usare se l'utente chiede di salvare, leggere o analizzare un documento, sempre nel percorso assoluto indicato. Presenta i risultati con date e materie quando disponibili; distingui chiaramente gli eventuali allegati o file restituiti dagli altri risultati.

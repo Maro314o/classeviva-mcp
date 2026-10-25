@@ -59,9 +59,9 @@ Le credenziali non fanno parte del plugin. Non salvarle nel repository, in `plug
 | `list_noticeboard` | Elenca gli avvisi senza marcarli come letti. |
 | `get_notice_attachment` | Legge un allegato usando `event_code` e `publication_id` dell'avviso. |
 | `list_didactics` | Elenca i materiali didattici. |
-| `get_didactics_item` | Legge un materiale con il `content_id` restituito da `list_didactics`. |
+| `download_didactics_item` | Salva un singolo materiale nel percorso assoluto richiesto, senza sovrascrivere file esistenti. |
 
-Tutte le operazioni di ClasseViva sono di sola lettura: il plugin non modifica dati, non segna avvisi come letti e non carica documenti.
+Le chiamate a ClasseViva sono di sola lettura: il plugin non modifica dati, non segna avvisi come letti e non carica documenti. `list_didactics` restituisce solo i metadati; usalo per sapere quali materiali esistono e come si chiamano. Per leggere o analizzare un documento, scaricalo prima con `download_didactics_item` in un percorso assoluto indicato e poi apri il file locale. Il comando salva un singolo contenuto, crea le cartelle mancanti e non sovrascrive file già esistenti.
 
 ## Se il server MCP non si avvia
 

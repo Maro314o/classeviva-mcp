@@ -99,10 +99,6 @@ type NoticeAttachmentInput struct {
 	PublicationID string `json:"publication_id" jsonschema:"Publication ID of the notice-board item."`
 }
 
-type DidacticsItemInput struct {
-	ContentID string `json:"content_id" jsonschema:"Content ID returned by list_didactics."`
-}
-
 func main() {
 	if len(os.Args) == 2 && os.Args[1] == "--credentials-path" {
 		path, err := classeviva.CredentialsPath()
@@ -117,7 +113,7 @@ func main() {
 	svc := &service{}
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    "classeviva",
-	Version: "0.1.2",
+		Version: "0.1.4",
 	}, nil)
 
 	mcp.AddTool(server, &mcp.Tool{
@@ -217,9 +213,12 @@ func main() {
 	})
 
 	mcp.AddTool(server, &mcp.Tool{
-		Name:        "get_didactics_item",
-		Description: "Legge un materiale didattico specifico usando il content_id restituito da list_didactics. Può restituire dati strutturati o un file incorporato. Strumento di sola lettura.",
-	}, func(ctx context.Context, _ *mcp.CallToolRequest, input DidacticsItemInput) (*mcp.CallToolResult, any, error) {
+		Name:        "download_didactics_item",
+		Description: "Scarica un singolo materiale didattico nel percorso assoluto indicato. Usalo quando l'utente chiede di salvarlo oppure di leggerne o analizzarne il contenuto; in questo caso scaricalo prima e poi leggi il file locale. Se il percorso manca, chiedilo. Non sovrascrive file esistenti.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, input DidacticsDownloadInput) (*mcp.CallToolResult, any, error) {
+		if err := validateDidacticsDestination(input.DestinationPath); err != nil {
+			return nil, nil, err
+		}
 		client, err := svc.getClient()
 		if err != nil {
 			return nil, nil, err
@@ -228,10 +227,11 @@ func main() {
 		if err != nil {
 			return nil, nil, err
 		}
-		if data != nil {
-			return nil, data, nil
+		output, err := saveDidacticsItem(input.DestinationPath, mimeType, data, body)
+		if err != nil {
+			return nil, nil, err
 		}
-		return embeddedFile("materiale-didattico", mimeType, body), nil, nil
+		return nil, output, nil
 	})
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

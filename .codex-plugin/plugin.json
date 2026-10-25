@@ -1,7 +1,7 @@
 {
   "name": "classeviva",
-  "version": "0.1.2",
-  "description": "Consulta in sola lettura agenda, bacheca, profilo e materiali di ClasseViva.",
+  "version": "0.1.4",
+  "description": "Consulta ClasseViva e salva su richiesta i materiali didattici in un percorso locale esplicito.",
   "author": {
     "name": "Local developer"
   },
@@ -9,11 +9,12 @@
   "interface": {
     "displayName": "ClasseViva",
     "shortDescription": "Consulta ClasseViva",
-    "longDescription": "Strumenti locali in sola lettura per consultare agenda e compiti, bacheca, profilo e materiali didattici ClasseViva.",
+    "longDescription": "Consulta agenda e compiti, bacheca, profilo e materiali didattici ClasseViva. Su richiesta esplicita, salva singoli materiali in un percorso locale indicato.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [
-      "Read"
+      "Read",
+      "Write"
     ],
     "defaultPrompt": [
       "Che compiti ho domani?",
