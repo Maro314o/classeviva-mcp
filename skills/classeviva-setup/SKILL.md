@@ -7,7 +7,19 @@ description: Usa il plugin ClasseViva per richieste naturali su compiti, agenda,
 
 Usa gli strumenti MCP del plugin per leggere i dati scolastici dell'account configurato localmente. Attiva questa skill anche per richieste come «che compiti ho domani?», «cosa ho per venerdì?» o «ci sono nuovi avvisi?», senza chiedere all'utente di nominare il plugin o la skill.
 
-Se gli strumenti del plugin non sono disponibili nella conversazione corrente, spiega che il plugin non è caricato e che va installato o abilitato in Codex. Non fingere di aver consultato ClasseViva e non sostituire i dati con supposizioni.
+Se gli strumenti del plugin non sono disponibili nella conversazione corrente, non fingere di aver consultato ClasseViva e non sostituire i dati con supposizioni. Prima verifica che il plugin sia installato e abilitato. Se risulta installato ma il server MCP non si avvia o l'eseguibile è mancante o incompatibile, segui la procedura di compilazione qui sotto prima di concludere che il plugin non è utilizzabile.
+
+## Avvio del server e compilazione locale
+
+Il pacchetto include un binario precompilato per Linux amd64. Se il sistema o l'architettura non sono compatibili, oppure Codex segnala che il processo MCP non può essere avviato:
+
+1. Controlla il sistema operativo e l'architettura dell'utente, quindi verifica che il plugin sia installato. Se gli strumenti non sono caricati nella conversazione corrente, aprine una nuova o riavvia Codex.
+2. Individua la cartella effettiva del plugin installato, quella che contiene `.mcp.json`, `Makefile`, `go.mod` e `cmd/classeviva/`. Usa il percorso cache di Codex per il marketplace e la versione installata; non compilare una copia separata del repository, perché il server usa il binario dentro la cartella installata.
+3. Verifica che siano disponibili `make` e Go 1.25 o successivo (`go version`). Se Go manca, consulta [le istruzioni ufficiali di installazione di Go](https://go.dev/doc/install), seleziona il sistema e l'architettura corretti, completa l'installazione e apri un nuovo terminale. Se `make` manca, installa GNU Make usando gli strumenti ufficiali del sistema.
+4. Dalla cartella del plugin installato, esegui `make build`. Il Makefile compila il sorgente per il sistema e l'architettura correnti, disabilita CGO e sovrascrive il binario atteso dalla configurazione MCP.
+5. Riavvia Codex o apri una nuova conversazione e verifica che gli strumenti MCP siano caricati. Se il server continua a non partire, comunica l'errore preciso e non dichiarare di aver letto dati ClasseViva.
+
+Non installare Go da siti di terze parti. Se l'installazione ufficiale richiede privilegi amministrativi non disponibili nell'ambiente, spiega all'utente quali passaggi deve completare e riprendi dopo che Go è disponibile.
 
 ## Primo utilizzo e credenziali
 
