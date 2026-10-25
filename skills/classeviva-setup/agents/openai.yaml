@@ -1,0 +1,6 @@
+interface:
+  display_name: "ClasseViva"
+  short_description: "Leggi compiti, agenda e avvisi scolastici"
+
+policy:
+  allow_implicit_invocation: true

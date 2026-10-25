@@ -1,0 +1,20 @@
+{
+  "name": "classeviva-repo",
+  "interface": {
+    "displayName": "ClasseViva"
+  },
+  "plugins": [
+    {
+      "name": "classeviva",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

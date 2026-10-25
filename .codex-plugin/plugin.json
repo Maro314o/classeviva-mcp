@@ -1,6 +1,6 @@
 {
   "name": "classeviva",
-  "version": "0.1.0+codex.20261025141341",
+  "version": "0.1.1",
   "description": "Consulta in sola lettura agenda, bacheca, profilo e materiali di ClasseViva.",
   "author": {
     "name": "Local developer"
@@ -16,6 +16,7 @@
       "Read"
     ],
     "defaultPrompt": [
+      "Che compiti ho domani?",
       "Configura ClasseViva nel browser laterale di Codex.",
       "Mostrami i compiti per una data specifica.",
       "Cerca nuovi avvisi nella bacheca ClasseViva."
