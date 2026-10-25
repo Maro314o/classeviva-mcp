@@ -1,0 +1,25 @@
+{
+  "name": "classeviva",
+  "version": "0.1.0+codex.20261025141341",
+  "description": "Consulta in sola lettura agenda, bacheca, profilo e materiali di ClasseViva.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ClasseViva",
+    "shortDescription": "Consulta ClasseViva",
+    "longDescription": "Strumenti locali in sola lettura per consultare agenda e compiti, bacheca, profilo e materiali didattici ClasseViva.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Configura ClasseViva nel browser laterale di Codex.",
+      "Mostrami i compiti per una data specifica.",
+      "Cerca nuovi avvisi nella bacheca ClasseViva."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

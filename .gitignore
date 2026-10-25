@@ -1,0 +1,9 @@
+# Local credentials must never enter the plugin repository.
+credentials.txt
+**/credentials.txt
+.env
+.env.*
+!.env.example
+
+# Compiled plugin binaries
+/bin/
