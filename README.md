@@ -4,10 +4,10 @@ Plugin locale per Codex: un server MCP scritto in Go e la skill **ClasseViva** s
 
 ## Installazione da GitHub in Codex
 
-Il repository include un marketplace Codex in `.agents/plugins/marketplace.json`. Dopo aver pubblicato il repository su GitHub, sostituisci `OWNER/REPOSITORY` con il proprietario e il nome effettivi del repository e installa il plugin dal terminale:
+Il repository include un marketplace Codex in `.agents/plugins/marketplace.json`. Per installare il plugin da questa repository GitHub, usa:
 
 ```sh
-codex plugin marketplace add OWNER/REPOSITORY
+codex plugin marketplace add Maro314o/classeviva-mcp
 codex plugin add classeviva@classeviva-repo
 codex plugin list
 ```
@@ -18,7 +18,7 @@ La prima riga aggiunge il marketplace del repository; la seconda installa **Clas
 
 Quando l'utente chiede di installare ClasseViva seguendo questo README:
 
-1. Usa il marketplace GitHub configurato sopra, sostituendo `OWNER/REPOSITORY` con l'indirizzo indicato dall'utente o nel contesto del repository.
+1. Usa il marketplace GitHub configurato sopra; il repository è `Maro314o/classeviva-mcp`.
 2. Esegui i comandi `codex plugin marketplace add` e `codex plugin add` riportati sopra, poi controlla `codex plugin list`.
 3. Se il plugin non compare nella conversazione corrente, chiedi all'utente di aprire una nuova conversazione o riavviare Codex. Se il server MCP continua a non avviarsi, segui la sezione **Se il server MCP non si avvia** e compila con `make build` nella cartella effettiva del plugin installato.
 4. Prima di leggere dati, chiama `get_setup_status`. Se `configured` è `false`, segui la procedura della skill: chiama `begin_credentials_setup`, apri il link nel browser laterale di Codex e lascia che l'utente inserisca le credenziali lì. Attendi la sua conferma e verifica di nuovo lo stato.
