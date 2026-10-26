@@ -6,6 +6,7 @@ Questo file raccoglie le decisioni operative e i guasti già diagnosticati. Legg
 
 - `.codex-plugin/plugin.json` installa la skill ClasseViva. Il server MCP viene registrato separatamente nel config locale dell'utente con il nome `classeviva`.
 - `make install-local-plugin` compila `bin/classeviva`, aggiorna il marketplace locale, reinstalla la skill e registra il server MCP con il percorso assoluto del checkout. È la procedura standard dopo modifiche al server, agli strumenti o alla skill.
+- Per aggiornare un checkout già installato dal ramo upstream, seguire la skill locale `.agents/skills/update-classeviva-mcp/SKILL.md`. Questa skill è istruzione di sviluppo del repository e non fa parte del plugin distribuito; il plugin contiene solo un rimando alla procedura.
 - `make install-local-mcp` ricompila e aggiorna soltanto la registrazione MCP. Usarlo quando serve riallineare il server senza reinstallare la skill.
 - La registrazione MCP è locale all'utente e all'host Codex. Le nuove conversazioni locali, anche avviate in altre cartelle sullo stesso host, usano quel config. Ogni altro utente o host deve eseguire l'installazione nel proprio checkout. Un server stdio locale non è disponibile nelle conversazioni remote/cloud.
 - Una conversazione già aperta non aggiorna il proprio elenco di strumenti. Dopo l'installazione verificare da una nuova conversazione locale.
@@ -43,6 +44,7 @@ Una sessione CLI avviata in sandbox di sola lettura può fallire prima dell'MCP 
 - Quando si aggiunge o modifica un tool o una rotta ClasseViva, aggiornare `docs/classeviva-api.md`, `skills/classeviva-setup/SKILL.md` e la tabella degli strumenti in `README.md`, mantenendo coerenti nomi, parametri, intervalli data, stato d'uso ed effetti collaterali.
 - Tenere allineata la versione in `.codex-plugin/plugin.json` con quella dichiarata in `cmd/classeviva/main.go`; ricompilare il binario tracciato `bin/classeviva`.
 - Dopo modifiche al codice, ai tool o alla skill, eseguire `make install-local-plugin` per aggiornare la copia locale e la registrazione usate dalle conversazioni future.
+- Prima di eseguire quel target in un ambiente utente, verificare che il server MCP chiamato `classeviva` non abbia argomenti o variabili d'ambiente personalizzati: il target rimuove e ricrea la registrazione con il solo percorso assoluto del binario.
 - Prima di pubblicare, verificare il diff e l'esito di `go test ./...`; poi controllare installazione, registrazione MCP e almeno una chiamata reale da una sessione nuova.
 
 ## Dati scolastici e credenziali

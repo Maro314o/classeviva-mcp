@@ -28,6 +28,18 @@ Testo che l'utente può dare al proprio agente:
 
 > Installa il plugin ClasseViva seguendo il README di questo repository. Poi verifica che gli strumenti siano disponibili e, se le credenziali non sono configurate, avvia la procedura nel browser locale. Non chiedermi di scrivere le credenziali in chat.
 
+### Aggiornare un'installazione esistente
+
+Sul computer in cui il plugin è già installato, individua il checkout usato da Codex con `codex plugin marketplace list` e apri quella cartella. Controlla che il checkout sia pulito, poi aggiorna e reinstalla:
+
+```sh
+git status --short --branch
+git pull --ff-only origin main
+make install-local-plugin
+```
+
+Infine apri una nuova conversazione locale: quelle già aperte non ricaricano i tool. Il pull aggiorna il clone e `make install-local-plugin` ricompila il server per quel computer e aggiorna plugin e registrazione MCP. Le credenziali restano nella configurazione utente locale e non vengono trasferite o sovrascritte. Non usare reset o pulizie Git per superare modifiche locali. Per la procedura completa, inclusi controlli e casi di conflitto, vedi [la skill locale di aggiornamento](.agents/skills/update-classeviva-mcp/SKILL.md).
+
 ### Requisiti e piattaforme
 
 Il repository distribuisce un eseguibile già compilato per **Linux amd64**. Il comando `make install-local-plugin` ricompila il server per aggiornare anche l'installazione locale; la compilazione richiede Go 1.25 o successivo e `make`.

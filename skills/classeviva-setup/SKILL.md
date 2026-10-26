@@ -1,6 +1,6 @@
 ---
 name: classeviva-setup
-description: Usa il plugin ClasseViva per richieste naturali su compiti, lezioni, assenze, agenda, profilo, bacheca, allegati e materiali didattici, anche se l'utente non nomina ClasseViva o la skill; guida inoltre la prima configurazione delle credenziali.
+description: Usa il plugin ClasseViva per richieste naturali su compiti, lezioni, assenze, agenda, profilo, bacheca, allegati e materiali didattici, anche se l'utente non nomina ClasseViva o la skill; guida la prima configurazione delle credenziali e instrada le richieste di aggiornamento del plugin alla procedura locale del repository.
 ---
 
 # ClasseViva
@@ -12,6 +12,8 @@ Se gli strumenti MCP ClasseViva non sono disponibili nella conversazione corrent
 ## Installazione e aggiornamento del server
 
 Il server MCP viene registrato nel config locale di Codex con il nome `classeviva`; il comando contiene il percorso assoluto del binario nel checkout, quindi non dipende dalla cartella del progetto corrente. Per installare o aggiornare server e skill, esegui `make install-local-plugin` dalla radice del repository. Il comando compila il server, aggiorna il marketplace locale, reinstalla il plugin e registra nuovamente il percorso MCP.
+
+Se l'utente chiede di aggiornare il repository, il plugin o il server MCP alla versione più recente, individua il checkout effettivamente usato con `codex plugin marketplace list` (marketplace `classeviva-repo`) e, se serve, controlla il percorso del binario con `codex mcp list --json`. Poi leggi e segui `.agents/skills/update-classeviva-mcp/SKILL.md` in quel checkout. Non trattare `codex plugin marketplace upgrade` come aggiornamento del codice: questa installazione usa un marketplace locale collegato a un clone Git. Se la skill locale non è disponibile, segui la sezione di aggiornamento nel README senza cancellare modifiche locali o dati utente.
 
 Se il server non compare in `codex mcp list`, oppure Codex segnala che il binario è mancante o incompatibile, verifica il sistema operativo e l'architettura, quindi controlla che siano disponibili `make` e Go 1.25 o successivo (`go version`). Se Go manca, consulta [le istruzioni ufficiali di installazione di Go](https://go.dev/doc/install); se manca `make`, installa GNU Make usando gli strumenti ufficiali del sistema. Poi ripeti `make install-local-plugin` e apri una nuova conversazione locale. Non installare Go da siti di terze parti.
 
