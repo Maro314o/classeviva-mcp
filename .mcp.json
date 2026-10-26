@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "classeviva": {
-      "type": "stdio",
-      "command": "${PLUGIN_ROOT}/bin/classeviva",
-      "args": []
-    }
-  }
-}

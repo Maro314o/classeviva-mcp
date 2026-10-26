@@ -1,6 +1,6 @@
 {
   "name": "classeviva",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "description": "Consulta agenda, lezioni, assenze, bacheca, profilo e materiali didattici ClasseViva; salva su richiesta i materiali in un percorso locale esplicito.",
   "author": {
     "name": "Local developer"
@@ -22,6 +22,5 @@
       "Mostrami i compiti per una data specifica.",
       "Cerca nuovi avvisi nella bacheca ClasseViva."
     ]
-  },
-  "mcpServers": "./.mcp.json"
+  }
 }

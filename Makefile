@@ -10,14 +10,23 @@ endif
 
 export CGO_ENABLED := 0
 
-.PHONY: build install-local-plugin
+.PHONY: build install-local-mcp install-local-plugin
 
 build:
 	$(GO) build $(GOFLAGS) -ldflags '$(LDFLAGS)' -o "$(OUTPUT)" ./cmd/classeviva
 
-# Refresh the personal Codex installation from this checkout after local changes.
+# Register the local MCP server in the user config so every local Codex task
+# can start it with an absolute path, independent of the task's working folder.
+install-local-mcp: build
+	@codex mcp remove classeviva --json >/dev/null 2>&1 || true
+	codex mcp add classeviva -- "$(CURDIR)/$(OUTPUT)"
+
+# Refresh the local plugin and MCP installation from this checkout.
 install-local-plugin: build
-	@if codex plugin list --marketplace personal --json 2>/dev/null | python3 -c 'import json,sys; raw=sys.stdin.read(); data=json.loads(raw[raw.index("{"):]); print(str(any(p.get("pluginId") == "classeviva@personal" and p.get("installed") for p in data.get("installed", []))).lower())' | grep -qx true; then \
-		codex plugin remove classeviva@personal --json; \
-	fi
-	codex plugin add classeviva@personal --json
+	@codex plugin remove classeviva@personal --json >/dev/null 2>&1 || true
+	@codex plugin remove classeviva@classeviva-repo --json >/dev/null 2>&1 || true
+	@codex plugin marketplace remove classeviva-repo --json >/dev/null 2>&1 || true
+	codex plugin marketplace add "$(CURDIR)" --json
+	codex plugin add classeviva@classeviva-repo --json
+	@codex mcp remove classeviva --json >/dev/null 2>&1 || true
+	codex mcp add classeviva -- "$(CURDIR)/$(OUTPUT)"
