@@ -125,7 +125,7 @@ func main() {
 	svc := &service{}
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    "classeviva",
-		Version: "0.1.11",
+		Version: "0.1.12",
 	}, nil)
 
 	mcp.AddTool(server, &mcp.Tool{

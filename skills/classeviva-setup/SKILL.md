@@ -39,7 +39,7 @@ Il server della configurazione ascolta solo su `127.0.0.1`; il link è casuale, 
 - `list_lessons`: elenca le lezioni di oggi se non riceve date, di un singolo giorno con `date`, oppure di un intervallo inclusivo con `from` e `to` in formato ISO `YYYY-MM-DD`. Usalo per richieste specifiche sull'orario o sulle lezioni; usa `get_agenda` per la vista combinata di compiti ed eventi.
 - `list_absences`: elenca i dettagli delle assenze. Senza date restituisce tutti i dati; `from` da solo restituisce i dati a partire da quella data; `from` e `to` insieme delimitano un intervallo inclusivo. Per un giorno usa la stessa data in entrambi i campi.
 - `list_noticeboard`: elenca gli avvisi senza marcarli come letti.
-- `get_notice_attachment`: legge un allegato usando `event_code`, `publication_id` e `attach_num` dell'avviso (`attachments[].attachNum`; predefinito `1`).
+- `get_notice_attachment`: legge un allegato usando `event_code`, `publication_id` e `attach_num` dell'avviso (`attachments[].attachNum`; predefinito `1`). Non segna l'avviso come letto.
 - `list_didactics`: elenca i materiali didattici.
 - `download_didactics_item`: salva un materiale didattico in un file locale. Richiede `content_id` e il percorso assoluto completo `destination_path`; non sovrascrive file esistenti.
 
@@ -49,4 +49,4 @@ Per «domani», «oggi» o un giorno della settimana, determina prima la data di
 
 ## Limiti
 
-Le chiamate a ClasseViva sono di sola lettura: non segnare avvisi come letti, non caricare file e non inviare modifiche al servizio. L'unica scrittura locale è `download_didactics_item`, da usare se l'utente chiede di salvare, leggere o analizzare un documento, sempre nel percorso assoluto indicato. Presenta i risultati con date e materie quando disponibili; distingui chiaramente gli eventuali allegati o file restituiti dagli altri risultati.
+Gli strumenti MCP esposti sono di sola lettura rispetto a ClasseViva: non segnano avvisi come letti, non caricano file e non inviano modifiche al servizio. Nota sugli allegati: in una verifica reale l'API mobile ha negato con `152:CvvRestApi/access to content not allowed` il download di un avviso non letto; lo stesso download è riuscito dopo che l'avviso era stato segnato come letto. Per quel caso la marcatura era necessaria, ma non è confermata come regola universale. Se `get_notice_attachment` restituisce quell'errore, spiega il requisito osservato e chiedi consenso esplicito prima di qualsiasi operazione che cambi lo stato. Il server MCP attuale non espone un tool per segnare un avviso come letto: non farlo in autonomia e non dichiarare che il tool di download lo abbia fatto. L'unica scrittura locale è `download_didactics_item`, da usare se l'utente chiede di salvare, leggere o analizzare un documento, sempre nel percorso assoluto indicato. Presenta i risultati con date e materie quando disponibili; distingui chiaramente gli eventuali allegati o file restituiti dagli altri risultati.

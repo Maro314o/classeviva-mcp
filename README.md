@@ -59,11 +59,11 @@ Le credenziali non fanno parte del plugin. Non salvarle nel repository, in `plug
 | `list_lessons` | Elenca le lezioni di oggi, di un giorno (`date`) o di un intervallo (`from` e `to`), in formato ISO `YYYY-MM-DD`. |
 | `list_absences` | Elenca le assenze complete, da una data (`from`) o in un intervallo (`from` e `to`), in formato ISO `YYYY-MM-DD`. |
 | `list_noticeboard` | Elenca gli avvisi senza marcarli come letti. |
-| `get_notice_attachment` | Legge un allegato usando `event_code`, `publication_id` e `attach_num` dell'avviso (`attachments[].attachNum`; predefinito `1`). |
+| `get_notice_attachment` | Legge un allegato usando `event_code`, `publication_id` e `attach_num` dell'avviso (`attachments[].attachNum`; predefinito `1`). Non segna l'avviso come letto. |
 | `list_didactics` | Elenca i materiali didattici. |
 | `download_didactics_item` | Salva un singolo materiale nel percorso assoluto richiesto, senza sovrascrivere file esistenti. |
 
-Le chiamate a ClasseViva sono di sola lettura: il plugin non modifica dati, non segna avvisi come letti e non carica documenti. `list_didactics` restituisce solo i metadati; usalo per sapere quali materiali esistono e come si chiamano. Per leggere o analizzare un documento, scaricalo prima con `download_didactics_item` in un percorso assoluto indicato e poi apri il file locale. Il comando salva un singolo contenuto, crea le cartelle mancanti e non sovrascrive file già esistenti.
+Le chiamate esposte dal plugin non modificano dati ClasseViva, non segnano avvisi come letti e non caricano documenti. Nota: nella verifica dell'API mobile un allegato di un avviso non letto è stato rifiutato con `152:CvvRestApi/access to content not allowed`; lo stesso download è riuscito dopo che l'avviso era stato segnato come letto. Per quel caso, quindi, la marcatura era necessaria. Se `get_notice_attachment` restituisce questo errore, spiega il requisito osservato e chiedi consenso prima di qualsiasi operazione che cambi lo stato. Il server MCP attuale non espone un tool per segnare un avviso come letto e il tool di download non lo fa automaticamente; il comportamento non è confermato come regola universale. `list_didactics` restituisce solo i metadati; usalo per sapere quali materiali esistono e come si chiamano. Per leggere o analizzare un documento, scaricalo prima con `download_didactics_item` in un percorso assoluto indicato e poi apri il file locale. Il comando salva un singolo contenuto, crea le cartelle mancanti e non sovrascrive file già esistenti.
 
 ## Se il server MCP non si avvia
 
