@@ -3,8 +3,7 @@
     "classeviva": {
       "type": "stdio",
       "command": "${PLUGIN_ROOT}/bin/classeviva",
-      "args": [],
-      "cwd": "${PLUGIN_ROOT}"
+      "args": []
     }
   }
 }
