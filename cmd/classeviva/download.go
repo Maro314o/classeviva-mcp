@@ -13,13 +13,13 @@ type DidacticsDownloadInput struct {
 	DestinationPath string `json:"destination_path" jsonschema:"Absolute local file path including the filename. Existing files are not overwritten."`
 }
 
-type DidacticsDownloadOutput struct {
+type DownloadedFileOutput struct {
 	Path      string `json:"path" jsonschema:"Absolute path where the downloaded material was saved."`
 	MIMEType  string `json:"mime_type" jsonschema:"MIME type returned by ClasseViva."`
 	SizeBytes int64  `json:"size_bytes" jsonschema:"Size of the saved file in bytes."`
 }
 
-func validateDidacticsDestination(destinationPath string) error {
+func validateDownloadDestination(destinationPath string) error {
 	if strings.TrimSpace(destinationPath) == "" {
 		return fmt.Errorf("destination_path is required")
 	}
@@ -29,19 +29,16 @@ func validateDidacticsDestination(destinationPath string) error {
 	return nil
 }
 
-func saveDidacticsItem(destinationPath, mimeType string, data any, body []byte) (*DidacticsDownloadOutput, error) {
-	if data != nil {
-		return nil, fmt.Errorf("ClasseViva returned structured JSON, not a downloadable file")
-	}
+func saveDownloadedFile(destinationPath, mimeType string, body []byte) (*DownloadedFileOutput, error) {
 	if len(body) == 0 {
 		return nil, fmt.Errorf("ClasseViva returned an empty file")
 	}
 
-	savedPath, err := classeviva.SaveDidacticsFile(destinationPath, body)
+	savedPath, err := classeviva.SaveDownloadedFile(destinationPath, body)
 	if err != nil {
 		return nil, err
 	}
-	return &DidacticsDownloadOutput{
+	return &DownloadedFileOutput{
 		Path:      savedPath,
 		MIMEType:  mimeType,
 		SizeBytes: int64(len(body)),

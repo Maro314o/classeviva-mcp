@@ -25,7 +25,7 @@ func TestGetNoticeAttachmentUsesRequestedAttachmentNumber(t *testing.T) {
 				}
 			})
 
-			if _, _, _, err := client.GetNoticeAttachment(context.Background(), "CF", "40602674", test.number); err != nil {
+			if _, _, err := client.GetNoticeAttachment(context.Background(), "CF", "40602674", test.number); err != nil {
 				t.Fatalf("GetNoticeAttachment() error = %v", err)
 			}
 			if gotPath != test.want {
@@ -38,11 +38,39 @@ func TestGetNoticeAttachmentUsesRequestedAttachmentNumber(t *testing.T) {
 func TestGetNoticeAttachmentRejectsNonPositiveNumberBeforeRequest(t *testing.T) {
 	var requestCount int
 	client := newAbsenceTestClient(func(*http.Request) { requestCount++ })
-	if _, _, _, err := client.GetNoticeAttachment(context.Background(), "CF", "40602674", 0); err == nil {
+	if _, _, err := client.GetNoticeAttachment(context.Background(), "CF", "40602674", 0); err == nil {
 		t.Fatal("GetNoticeAttachment() error = nil, want invalid attachment number error")
 	}
 	if requestCount != 0 {
 		t.Fatalf("HTTP request count = %d, want 0", requestCount)
+	}
+}
+
+func TestGetNoticeAttachmentPreservesJSONFileBytes(t *testing.T) {
+	client := newAbsenceTestClient(func(*http.Request) {})
+	mimeType, body, err := client.GetNoticeAttachment(context.Background(), "CF", "40602674", 1)
+	if err != nil {
+		t.Fatalf("GetNoticeAttachment() error = %v", err)
+	}
+	if mimeType != "application/json" {
+		t.Fatalf("MIME type = %q, want application/json", mimeType)
+	}
+	if string(body) != `{"absences":[]}` {
+		t.Fatalf("body = %q, want original JSON file bytes", body)
+	}
+}
+
+func TestGetDidacticsItemPreservesJSONFileBytes(t *testing.T) {
+	client := newAbsenceTestClient(func(*http.Request) {})
+	mimeType, body, err := client.GetDidacticsItem(context.Background(), "material-123")
+	if err != nil {
+		t.Fatalf("GetDidacticsItem() error = %v", err)
+	}
+	if mimeType != "application/json" {
+		t.Fatalf("MIME type = %q, want application/json", mimeType)
+	}
+	if string(body) != `{"absences":[]}` {
+		t.Fatalf("body = %q, want original JSON file bytes", body)
 	}
 }
 

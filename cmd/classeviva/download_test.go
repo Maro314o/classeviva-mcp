@@ -1,30 +1,33 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/google/jsonschema-go/jsonschema"
 )
 
-func TestSaveDidacticsItemRejectsStructuredData(t *testing.T) {
+func TestSaveDownloadedFileRejectsEmptyBody(t *testing.T) {
 	destination := filepath.Join(t.TempDir(), "material.json")
 
-	if _, err := saveDidacticsItem(destination, "application/json", map[string]any{"title": "metadata"}, nil); err == nil {
-		t.Fatal("saveDidacticsItem() error = nil, want structured-data error")
+	if _, err := saveDownloadedFile(destination, "application/json", nil); err == nil {
+		t.Fatal("saveDownloadedFile() error = nil, want empty-file error")
 	}
 	if _, err := os.Stat(destination); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("destination stat error = %v, want file not to exist", err)
 	}
 }
 
-func TestSaveDidacticsItemReturnsSavedFileMetadata(t *testing.T) {
+func TestSaveDownloadedFileReturnsSavedFileMetadata(t *testing.T) {
 	destination := filepath.Join(t.TempDir(), "material.pdf")
 	body := []byte("sample PDF payload")
 
-	got, err := saveDidacticsItem(destination, "application/pdf", nil, body)
+	got, err := saveDownloadedFile(destination, "application/pdf", body)
 	if err != nil {
-		t.Fatalf("saveDidacticsItem() error = %v", err)
+		t.Fatalf("saveDownloadedFile() error = %v", err)
 	}
 	if got.Path != destination {
 		t.Errorf("Path = %q, want %q", got.Path, destination)
@@ -45,14 +48,67 @@ func TestSaveDidacticsItemReturnsSavedFileMetadata(t *testing.T) {
 	}
 }
 
-func TestValidateDidacticsDestinationRequiresAbsolutePath(t *testing.T) {
-	if err := validateDidacticsDestination(filepath.Join("relative", "material.pdf")); err == nil {
-		t.Fatal("validateDidacticsDestination() error = nil, want relative path error")
+func TestSaveDownloadedFileWritesRawJSONBytes(t *testing.T) {
+	destination := filepath.Join(t.TempDir(), "material.json")
+	body := []byte(`{"title":"Materiale didattico"}`)
+
+	got, err := saveDownloadedFile(destination, "application/json", body)
+	if err != nil {
+		t.Fatalf("saveDownloadedFile() error = %v", err)
+	}
+	if got.Path != destination || got.MIMEType != "application/json" || got.SizeBytes != int64(len(body)) {
+		t.Fatalf("saved metadata = %#v, want path/MIME/size for raw JSON file", got)
+	}
+
+	saved, err := os.ReadFile(destination)
+	if err != nil {
+		t.Fatalf("ReadFile(%q) error = %v", destination, err)
+	}
+	if !bytes.Equal(saved, body) {
+		t.Fatalf("saved bytes = %q, want %q", saved, body)
 	}
 }
 
-func TestValidateDidacticsDestinationRequiresFilePath(t *testing.T) {
-	if err := validateDidacticsDestination(""); err == nil {
-		t.Fatal("validateDidacticsDestination() error = nil, want missing path error")
+func TestValidateDownloadDestinationRequiresAbsolutePath(t *testing.T) {
+	if err := validateDownloadDestination(filepath.Join("relative", "material.pdf")); err == nil {
+		t.Fatal("validateDownloadDestination() error = nil, want relative path error")
 	}
+}
+
+func TestValidateDownloadDestinationRequiresPath(t *testing.T) {
+	if err := validateDownloadDestination(""); err == nil {
+		t.Fatal("validateDownloadDestination() error = nil, want missing path error")
+	}
+}
+
+func TestDidacticsDownloadSchemaRequiresDestination(t *testing.T) {
+	schema, err := jsonschema.For[DidacticsDownloadInput](nil)
+	if err != nil {
+		t.Fatalf("jsonschema.For() error = %v", err)
+	}
+	var contentIDRequired, destinationRequired bool
+	for _, required := range schema.Required {
+		if required == "content_id" {
+			contentIDRequired = true
+		}
+		if required == "destination_path" {
+			destinationRequired = true
+		}
+	}
+	if !contentIDRequired || !destinationRequired {
+		t.Fatalf("required fields = %v, want content_id and destination_path", schema.Required)
+	}
+}
+
+func TestNoticeAttachmentSchemaRequiresDestination(t *testing.T) {
+	schema, err := jsonschema.For[NoticeAttachmentInput](nil)
+	if err != nil {
+		t.Fatalf("jsonschema.For() error = %v", err)
+	}
+	for _, required := range schema.Required {
+		if required == "destination_path" {
+			return
+		}
+	}
+	t.Fatalf("required fields = %v, want destination_path", schema.Required)
 }

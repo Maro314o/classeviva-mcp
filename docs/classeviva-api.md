@@ -38,9 +38,17 @@ https://web.spaggiari.eu/rest/v1
 | `GET /students/{studentId}/absences/details/{from}` | `list_absences` | `from` è `YYYYMMDD`; restituisce i dettagli dalla data indicata. | Lettura. |
 | `GET /students/{studentId}/absences/details/{from}/{to}` | `list_absences` | Date `YYYYMMDD`, intervallo inclusivo; restituisce i dettagli delle assenze. | Lettura. |
 | `GET /students/{studentId}/noticeboard` | `list_noticeboard` | Nessun parametro; restituisce il JSON degli avvisi e dei metadati, inclusi gli indici degli allegati quando presenti. | Lettura; non segna gli avvisi come letti. |
-| `GET /students/{studentId}/noticeboard/attach/{eventCode}/{pubId}/{attachNum}` | `get_notice_attachment` | `attachNum` va preso da `attachments[].attachNum`; nel tool `attach_num` è predefinito a `1`. Restituisce JSON se la risposta è JSON, altrimenti il MIME type e i byte del file. | Lettura; non segna l'avviso come letto. Il contenuto binario viene restituito come risorsa MCP. |
+| `GET /students/{studentId}/noticeboard/attach/{eventCode}/{pubId}/{attachNum}` | `get_notice_attachment` | `attachNum` va preso da `attachments[].attachNum`; nel tool `attach_num` è predefinito a `1`. Il body riuscito viene salvato come byte originali, senza convertirlo in JSON o testo in base al MIME. | Lettura remota; il tool salva il file nel percorso assoluto `destination_path` fornito dall'agente e restituisce percorso, MIME type e dimensione. Non segna l'avviso come letto e non sovrascrive file esistenti. |
 | `GET /students/{studentId}/didactics` | `list_didactics` | Nessun parametro; restituisce il JSON dei materiali didattici e dei metadati. | Lettura. |
-| `GET /students/{studentId}/didactics/item/{contentId}` | `download_didactics_item` | `contentId` proviene da `content_id`; la risposta può essere JSON o un file binario. | La richiesta remota è una lettura. Se è un file, il tool lo salva nel percorso assoluto scelto dall'utente, senza sovrascrivere file esistenti. Se è JSON, il tool rifiuta di salvarlo come file. |
+| `GET /students/{studentId}/didactics/item/{contentId}` | `download_didactics_item` | `contentId` proviene da `content_id`; il body riuscito viene trattato come byte originali del file, senza convertirlo in JSON o testo in base al MIME. | Lettura remota; il tool salva il file nel percorso assoluto `destination_path` fornito dall'agente e restituisce percorso, MIME type e dimensione. Non sovrascrive file esistenti. |
+
+I due tool di download non sono duplicati: `get_notice_attachment` segue
+`list_noticeboard` e usa gli identificativi dell'avviso più `attach_num`;
+`download_didactics_item` segue `list_didactics` e usa `content_id`. Entrambi
+richiedono un percorso locale assoluto, salvano il body originale e restituiscono
+solo percorso, MIME type e dimensione, senza incorporare i byte nel risultato
+MCP. Solo il download di un allegato della bacheca può dipendere dallo stato di
+lettura dell'avviso; nessuno dei due tool modifica tale stato.
 
 Gli identificativi `eventCode`, `pubId` e `contentId` sono richiesti e limitati
 a 160 caratteri dal client; i segmenti dinamici sono codificati per uso nei

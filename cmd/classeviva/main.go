@@ -2,15 +2,11 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
-	"mime"
-	"net/url"
 	"os"
 	"os/signal"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -106,9 +102,10 @@ type AbsencesInput struct {
 }
 
 type NoticeAttachmentInput struct {
-	EventCode     string `json:"event_code" jsonschema:"Event code from a ClasseViva notice-board item."`
-	PublicationID string `json:"publication_id" jsonschema:"Publication ID of the notice-board item."`
-	AttachNum     int    `json:"attach_num,omitempty" jsonschema:"Attachment number from the notice attachments[].attachNum metadata. Defaults to 1."`
+	EventCode       string `json:"event_code" jsonschema:"Event code from a ClasseViva notice-board item."`
+	PublicationID   string `json:"publication_id" jsonschema:"Publication ID of the notice-board item."`
+	AttachNum       int    `json:"attach_num,omitempty" jsonschema:"Attachment number from the notice attachments[].attachNum metadata. Defaults to 1."`
+	DestinationPath string `json:"destination_path" jsonschema:"Absolute local file path including the filename. Existing files are not overwritten."`
 }
 
 func main() {
@@ -125,7 +122,7 @@ func main() {
 	svc := &service{}
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    "classeviva",
-		Version: "0.1.14",
+		Version: "0.1.15",
 	}, nil)
 
 	mcp.AddTool(server, &mcp.Tool{
@@ -249,8 +246,11 @@ func main() {
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "get_notice_attachment",
-		Description: "Recupera un allegato usando event_code, publication_id e attach_num da attachments[].attachNum (predefinito 1). Non segna l'avviso come letto. Se restituisce HTTP 404 con identificativi verificati, lo stato non letto può essere una causa: una verifica API diretta vide il codice 152, ma il MCP nasconde il body e non può distinguere con certezza la causa. Chiedi consenso prima di qualsiasi marcatura separata; questo MCP non espone il relativo tool. Strumento di sola lettura.",
+		Description: "Scarica l'allegato e lo salva nel percorso assoluto destination_path indicato. Restituisce percorso, MIME type e dimensione; non sovrascrive file esistenti. Usa event_code, publication_id e attach_num da attachments[].attachNum (predefinito 1). Non segna l'avviso come letto. Se restituisce HTTP 404 con identificativi verificati, lo stato non letto può essere una causa: una verifica API diretta vide il codice 152, ma il MCP nasconde il body. Chiedi consenso prima di qualsiasi marcatura separata; questo MCP non espone il relativo tool.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input NoticeAttachmentInput) (*mcp.CallToolResult, any, error) {
+		if err := validateDownloadDestination(input.DestinationPath); err != nil {
+			return nil, nil, err
+		}
 		client, err := svc.getClient()
 		if err != nil {
 			return nil, nil, err
@@ -259,14 +259,15 @@ func main() {
 		if attachmentNumber == 0 {
 			attachmentNumber = 1
 		}
-		data, mimeType, body, err := client.GetNoticeAttachment(ctx, input.EventCode, input.PublicationID, attachmentNumber)
+		mimeType, body, err := client.GetNoticeAttachment(ctx, input.EventCode, input.PublicationID, attachmentNumber)
 		if err != nil {
 			return nil, nil, err
 		}
-		if data != nil {
-			return nil, data, nil
+		output, err := saveDownloadedFile(input.DestinationPath, mimeType, body)
+		if err != nil {
+			return nil, nil, err
 		}
-		return embeddedFile("allegato-bacheca", mimeType, body), nil, nil
+		return nil, output, nil
 	})
 
 	mcp.AddTool(server, &mcp.Tool{
@@ -283,20 +284,20 @@ func main() {
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "download_didactics_item",
-		Description: "Scarica un singolo materiale didattico nel percorso assoluto indicato. Usalo quando l'utente chiede di salvarlo oppure di leggerne o analizzarne il contenuto; in questo caso scaricalo prima e poi leggi il file locale. Se il percorso manca, chiedilo. Non sovrascrive file esistenti.",
+		Description: "Scarica un materiale didattico e lo salva nel percorso assoluto destination_path indicato. Richiede content_id da list_didactics e destination_path completo di nome file. Restituisce percorso, MIME type e dimensione; non sovrascrive file esistenti.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input DidacticsDownloadInput) (*mcp.CallToolResult, any, error) {
-		if err := validateDidacticsDestination(input.DestinationPath); err != nil {
+		if err := validateDownloadDestination(input.DestinationPath); err != nil {
 			return nil, nil, err
 		}
 		client, err := svc.getClient()
 		if err != nil {
 			return nil, nil, err
 		}
-		data, mimeType, body, err := client.GetDidacticsItem(ctx, input.ContentID)
+		mimeType, body, err := client.GetDidacticsItem(ctx, input.ContentID)
 		if err != nil {
 			return nil, nil, err
 		}
-		output, err := saveDidacticsItem(input.DestinationPath, mimeType, data, body)
+		output, err := saveDownloadedFile(input.DestinationPath, mimeType, body)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -319,25 +320,4 @@ func parseOptionalISODate(field, value string) (*time.Time, error) {
 		return nil, fmt.Errorf("%s deve essere una data ISO valida YYYY-MM-DD", field)
 	}
 	return &parsed, nil
-}
-
-func embeddedFile(label, mimeType string, body []byte) *mcp.CallToolResult {
-	if parsed, _, err := mime.ParseMediaType(mimeType); err == nil {
-		mimeType = parsed
-	}
-	if strings.HasPrefix(mimeType, "text/") || mimeType == "application/json" || mimeType == "application/xml" {
-		return &mcp.CallToolResult{Content: []mcp.Content{
-			&mcp.TextContent{Text: string(body)},
-		}}
-	}
-	uri := "classeviva://" + url.PathEscape(label) + "/attachment"
-	metadata, _ := json.Marshal(map[string]any{"mime_type": mimeType, "size_bytes": len(body)})
-	return &mcp.CallToolResult{Content: []mcp.Content{
-		&mcp.TextContent{Text: string(metadata)},
-		&mcp.EmbeddedResource{Resource: &mcp.ResourceContents{
-			URI:      uri,
-			MIMEType: mimeType,
-			Blob:     body,
-		}},
-	}}
 }

@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 )
 
-// SaveDidacticsFile writes a downloaded didactics item to an explicit absolute
-// path. Existing files are never replaced.
-func SaveDidacticsFile(destinationPath string, body []byte) (string, error) {
+// SaveDownloadedFile writes a downloaded file to an explicit absolute path.
+// Existing files are never replaced.
+func SaveDownloadedFile(destinationPath string, body []byte) (string, error) {
 	if destinationPath == "" {
 		return "", fmt.Errorf("destination path is required")
 	}
@@ -27,14 +27,14 @@ func SaveDidacticsFile(destinationPath string, body []byte) (string, error) {
 		return "", fmt.Errorf("cannot create destination file without overwriting: %w", err)
 	}
 
-	if err := writeDidacticsFile(file, cleanPath, body); err != nil {
+	if err := writeDownloadedFile(file, cleanPath, body); err != nil {
 		return "", err
 	}
 
 	return cleanPath, nil
 }
 
-func writeDidacticsFile(file io.WriteCloser, destinationPath string, body []byte) error {
+func writeDownloadedFile(file io.WriteCloser, destinationPath string, body []byte) error {
 	cleanup := func() {
 		_ = file.Close()
 		_ = os.Remove(destinationPath)

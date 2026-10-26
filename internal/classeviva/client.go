@@ -208,29 +208,53 @@ func (c *Client) GetDidactics(ctx context.Context) (any, error) {
 	return c.getJSON(ctx, "/students/"+url.PathEscape(c.student)+"/didactics")
 }
 
-// GetDidacticsItem reads one didactic item. JSON responses are returned as
-// structured data; files are returned with their MIME type and bytes.
-func (c *Client) GetDidacticsItem(ctx context.Context, contentID string) (any, string, []byte, error) {
+// GetDidacticsItem returns one didactic item's original MIME type and bytes.
+func (c *Client) GetDidacticsItem(ctx context.Context, contentID string) (string, []byte, error) {
 	if err := validatePathPart("content id", contentID); err != nil {
-		return nil, "", nil, err
+		return "", nil, err
 	}
 	path := "/students/" + url.PathEscape(c.student) + "/didactics/item/" + url.PathEscape(contentID)
-	return c.getJSONOrFile(ctx, path)
+	body, mimeType, err := c.authenticatedRequest(ctx, http.MethodGet, apiBaseURL+path, nil)
+	if err != nil {
+		return "", nil, err
+	}
+	if json.Valid(body) {
+		var response map[string]any
+		if err := json.Unmarshal(body, &response); err == nil {
+			if _, isAPIError := response["error"]; isAPIError {
+				return "", nil, errors.New("ClasseViva returned an API error")
+			}
+		}
+	}
+	return mimeType, body, nil
 }
 
-// GetNoticeAttachment reads an attachment for a specific notice-board item.
-func (c *Client) GetNoticeAttachment(ctx context.Context, eventCode, publicationID string, attachmentNumber int) (any, string, []byte, error) {
+// GetNoticeAttachment returns the raw bytes for an attachment, preserving file
+// payloads even when their MIME type is textual or application/json.
+func (c *Client) GetNoticeAttachment(ctx context.Context, eventCode, publicationID string, attachmentNumber int) (string, []byte, error) {
 	if err := validatePathPart("event code", eventCode); err != nil {
-		return nil, "", nil, err
+		return "", nil, err
 	}
 	if err := validatePathPart("publication id", publicationID); err != nil {
-		return nil, "", nil, err
+		return "", nil, err
 	}
 	if attachmentNumber < 1 {
-		return nil, "", nil, fmt.Errorf("attachment number must be at least 1")
+		return "", nil, fmt.Errorf("attachment number must be at least 1")
 	}
 	path := "/students/" + url.PathEscape(c.student) + "/noticeboard/attach/" + url.PathEscape(eventCode) + "/" + url.PathEscape(publicationID) + fmt.Sprintf("/%d", attachmentNumber)
-	return c.getJSONOrFile(ctx, path)
+	body, mimeType, err := c.authenticatedRequest(ctx, http.MethodGet, apiBaseURL+path, nil)
+	if err != nil {
+		return "", nil, err
+	}
+	if json.Valid(body) {
+		var response map[string]any
+		if err := json.Unmarshal(body, &response); err == nil {
+			if _, isAPIError := response["error"]; isAPIError {
+				return "", nil, errors.New("ClasseViva returned an API error")
+			}
+		}
+	}
+	return mimeType, body, nil
 }
 
 func validatePathPart(label, value string) error {

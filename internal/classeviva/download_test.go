@@ -8,23 +8,23 @@ import (
 	"testing"
 )
 
-type failingDidacticsFile struct {
+type failingDownloadedFile struct {
 	err error
 }
 
-func (f failingDidacticsFile) Write([]byte) (int, error) { return 1, f.err }
-func (f failingDidacticsFile) Close() error              { return nil }
+func (f failingDownloadedFile) Write([]byte) (int, error) { return 1, f.err }
+func (f failingDownloadedFile) Close() error              { return nil }
 
-func TestSaveDidacticsFileWritesExactBytesToAbsolutePath(t *testing.T) {
+func TestSaveDownloadedFileWritesExactBytesToAbsolutePath(t *testing.T) {
 	destination := filepath.Join(t.TempDir(), "nested", "material.pdf")
 	want := []byte("sample PDF payload")
 
-	gotPath, err := SaveDidacticsFile(destination, want)
+	gotPath, err := SaveDownloadedFile(destination, want)
 	if err != nil {
-		t.Fatalf("SaveDidacticsFile() error = %v", err)
+		t.Fatalf("SaveDownloadedFile() error = %v", err)
 	}
 	if gotPath != filepath.Clean(destination) {
-		t.Fatalf("SaveDidacticsFile() path = %q, want %q", gotPath, filepath.Clean(destination))
+		t.Fatalf("SaveDownloadedFile() path = %q, want %q", gotPath, filepath.Clean(destination))
 	}
 
 	got, err := os.ReadFile(destination)
@@ -54,21 +54,21 @@ func TestSaveDidacticsFileWritesExactBytesToAbsolutePath(t *testing.T) {
 	}
 }
 
-func TestSaveDidacticsFileRejectsRelativePath(t *testing.T) {
-	if _, err := SaveDidacticsFile(filepath.Join("relative", "material.pdf"), []byte("payload")); err == nil {
-		t.Fatal("SaveDidacticsFile() error = nil, want relative path error")
+func TestSaveDownloadedFileRejectsRelativePath(t *testing.T) {
+	if _, err := SaveDownloadedFile(filepath.Join("relative", "material.pdf"), []byte("payload")); err == nil {
+		t.Fatal("SaveDownloadedFile() error = nil, want relative path error")
 	}
 }
 
-func TestSaveDidacticsFileDoesNotOverwriteExistingFile(t *testing.T) {
+func TestSaveDownloadedFileDoesNotOverwriteExistingFile(t *testing.T) {
 	destination := filepath.Join(t.TempDir(), "material.pdf")
 	want := []byte("keep this file")
 	if err := os.WriteFile(destination, want, 0o600); err != nil {
 		t.Fatalf("WriteFile(%q) error = %v", destination, err)
 	}
 
-	if _, err := SaveDidacticsFile(destination, []byte("replacement")); err == nil {
-		t.Fatal("SaveDidacticsFile() error = nil, want existing destination error")
+	if _, err := SaveDownloadedFile(destination, []byte("replacement")); err == nil {
+		t.Fatal("SaveDownloadedFile() error = nil, want existing destination error")
 	}
 
 	got, err := os.ReadFile(destination)
@@ -80,21 +80,21 @@ func TestSaveDidacticsFileDoesNotOverwriteExistingFile(t *testing.T) {
 	}
 }
 
-func TestSaveDidacticsFileRejectsEmptyPath(t *testing.T) {
-	if _, err := SaveDidacticsFile("", []byte("payload")); err == nil {
-		t.Fatal("SaveDidacticsFile() error = nil, want empty path error")
+func TestSaveDownloadedFileRejectsEmptyPath(t *testing.T) {
+	if _, err := SaveDownloadedFile("", []byte("payload")); err == nil {
+		t.Fatal("SaveDownloadedFile() error = nil, want empty path error")
 	}
 }
 
-func TestWriteDidacticsFileRemovesPartialFileOnWriteFailure(t *testing.T) {
+func TestWriteDownloadedFileRemovesPartialFileOnWriteFailure(t *testing.T) {
 	destination := filepath.Join(t.TempDir(), "partial.pdf")
 	if err := os.WriteFile(destination, []byte("partial"), 0o600); err != nil {
 		t.Fatalf("WriteFile(%q) error = %v", destination, err)
 	}
 
-	err := writeDidacticsFile(failingDidacticsFile{err: errors.New("disk full")}, destination, []byte("payload"))
+	err := writeDownloadedFile(failingDownloadedFile{err: errors.New("disk full")}, destination, []byte("payload"))
 	if err == nil {
-		t.Fatal("writeDidacticsFile() error = nil, want write failure")
+		t.Fatal("writeDownloadedFile() error = nil, want write failure")
 	}
 	if _, err := os.Stat(destination); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("Stat(%q) error = %v, want partial file to be removed", destination, err)
