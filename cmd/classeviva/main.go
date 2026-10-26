@@ -108,6 +108,7 @@ type AbsencesInput struct {
 type NoticeAttachmentInput struct {
 	EventCode     string `json:"event_code" jsonschema:"Event code from a ClasseViva notice-board item."`
 	PublicationID string `json:"publication_id" jsonschema:"Publication ID of the notice-board item."`
+	AttachNum     int    `json:"attach_num,omitempty" jsonschema:"Attachment number from the notice attachments[].attachNum metadata. Defaults to 1."`
 }
 
 func main() {
@@ -124,7 +125,7 @@ func main() {
 	svc := &service{}
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    "classeviva",
-		Version: "0.1.10",
+		Version: "0.1.11",
 	}, nil)
 
 	mcp.AddTool(server, &mcp.Tool{
@@ -248,13 +249,17 @@ func main() {
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "get_notice_attachment",
-		Description: "Recupera i contenuti di un allegato della bacheca. Usa event_code e publication_id dell'avviso. Strumento di sola lettura.",
+		Description: "Recupera i contenuti di un allegato della bacheca. Usa event_code e publication_id dell'avviso e attach_num corrispondente a attachments[].attachNum (predefinito 1). Strumento di sola lettura.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input NoticeAttachmentInput) (*mcp.CallToolResult, any, error) {
 		client, err := svc.getClient()
 		if err != nil {
 			return nil, nil, err
 		}
-		data, mimeType, body, err := client.GetNoticeAttachment(ctx, input.EventCode, input.PublicationID)
+		attachmentNumber := input.AttachNum
+		if attachmentNumber == 0 {
+			attachmentNumber = 1
+		}
+		data, mimeType, body, err := client.GetNoticeAttachment(ctx, input.EventCode, input.PublicationID, attachmentNumber)
 		if err != nil {
 			return nil, nil, err
 		}

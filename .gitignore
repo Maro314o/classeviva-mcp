@@ -4,6 +4,7 @@ credentials.txt
 .env
 .env.*
 !.env.example
+downloads/
 
 # Keep the Linux amd64 runtime required by the packaged plugin; ignore other build outputs.
 /bin/*

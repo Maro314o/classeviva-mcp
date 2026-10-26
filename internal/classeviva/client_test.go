@@ -1,6 +1,50 @@
 package classeviva
 
-import "testing"
+import (
+	"context"
+	"net/http"
+	"testing"
+)
+
+func TestGetNoticeAttachmentUsesRequestedAttachmentNumber(t *testing.T) {
+	tests := []struct {
+		name   string
+		number int
+		want   string
+	}{
+		{name: "first attachment", number: 1, want: "/rest/v1/students/12345678/noticeboard/attach/CF/40602674/1"},
+		{name: "second attachment", number: 2, want: "/rest/v1/students/12345678/noticeboard/attach/CF/40602674/2"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var gotPath string
+			client := newAbsenceTestClient(func(req *http.Request) {
+				if req.Method == http.MethodGet {
+					gotPath = req.URL.Path
+				}
+			})
+
+			if _, _, _, err := client.GetNoticeAttachment(context.Background(), "CF", "40602674", test.number); err != nil {
+				t.Fatalf("GetNoticeAttachment() error = %v", err)
+			}
+			if gotPath != test.want {
+				t.Fatalf("GET path = %q, want %q", gotPath, test.want)
+			}
+		})
+	}
+}
+
+func TestGetNoticeAttachmentRejectsNonPositiveNumberBeforeRequest(t *testing.T) {
+	var requestCount int
+	client := newAbsenceTestClient(func(*http.Request) { requestCount++ })
+	if _, _, _, err := client.GetNoticeAttachment(context.Background(), "CF", "40602674", 0); err == nil {
+		t.Fatal("GetNoticeAttachment() error = nil, want invalid attachment number error")
+	}
+	if requestCount != 0 {
+		t.Fatalf("HTTP request count = %d, want 0", requestCount)
+	}
+}
 
 func TestStudentIDFromUID(t *testing.T) {
 	tests := []struct {

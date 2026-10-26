@@ -59,7 +59,7 @@ Le credenziali non fanno parte del plugin. Non salvarle nel repository, in `plug
 | `list_lessons` | Elenca le lezioni di oggi, di un giorno (`date`) o di un intervallo (`from` e `to`), in formato ISO `YYYY-MM-DD`. |
 | `list_absences` | Elenca le assenze complete, da una data (`from`) o in un intervallo (`from` e `to`), in formato ISO `YYYY-MM-DD`. |
 | `list_noticeboard` | Elenca gli avvisi senza marcarli come letti. |
-| `get_notice_attachment` | Legge un allegato usando `event_code` e `publication_id` dell'avviso. |
+| `get_notice_attachment` | Legge un allegato usando `event_code`, `publication_id` e `attach_num` dell'avviso (`attachments[].attachNum`; predefinito `1`). |
 | `list_didactics` | Elenca i materiali didattici. |
 | `download_didactics_item` | Salva un singolo materiale nel percorso assoluto richiesto, senza sovrascrivere file esistenti. |
 

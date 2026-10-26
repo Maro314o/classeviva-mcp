@@ -219,14 +219,17 @@ func (c *Client) GetDidacticsItem(ctx context.Context, contentID string) (any, s
 }
 
 // GetNoticeAttachment reads an attachment for a specific notice-board item.
-func (c *Client) GetNoticeAttachment(ctx context.Context, eventCode, publicationID string) (any, string, []byte, error) {
+func (c *Client) GetNoticeAttachment(ctx context.Context, eventCode, publicationID string, attachmentNumber int) (any, string, []byte, error) {
 	if err := validatePathPart("event code", eventCode); err != nil {
 		return nil, "", nil, err
 	}
 	if err := validatePathPart("publication id", publicationID); err != nil {
 		return nil, "", nil, err
 	}
-	path := "/students/" + url.PathEscape(c.student) + "/noticeboard/attach/" + url.PathEscape(eventCode) + "/" + url.PathEscape(publicationID) + "/101"
+	if attachmentNumber < 1 {
+		return nil, "", nil, fmt.Errorf("attachment number must be at least 1")
+	}
+	path := "/students/" + url.PathEscape(c.student) + "/noticeboard/attach/" + url.PathEscape(eventCode) + "/" + url.PathEscape(publicationID) + fmt.Sprintf("/%d", attachmentNumber)
 	return c.getJSONOrFile(ctx, path)
 }
 
