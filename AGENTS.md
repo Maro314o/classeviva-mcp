@@ -40,7 +40,7 @@ Una sessione CLI avviata in sandbox di sola lettura può fallire prima dell'MCP 
 
 ## Modifiche al server e rilascio
 
-- Quando si aggiunge o modifica un tool, aggiornare anche `skills/classeviva-setup/SKILL.md` e la tabella degli strumenti in `README.md`, mantenendo coerenti nomi, parametri e intervalli data.
+- Quando si aggiunge o modifica un tool o una rotta ClasseViva, aggiornare `docs/classeviva-api.md`, `skills/classeviva-setup/SKILL.md` e la tabella degli strumenti in `README.md`, mantenendo coerenti nomi, parametri, intervalli data, stato d'uso ed effetti collaterali.
 - Tenere allineata la versione in `.codex-plugin/plugin.json` con quella dichiarata in `cmd/classeviva/main.go`; ricompilare il binario tracciato `bin/classeviva`.
 - Dopo modifiche al codice, ai tool o alla skill, eseguire `make install-local-plugin` per aggiornare la copia locale e la registrazione usate dalle conversazioni future.
 - Prima di pubblicare, verificare il diff e l'esito di `go test ./...`; poi controllare installazione, registrazione MCP e almeno una chiamata reale da una sessione nuova.

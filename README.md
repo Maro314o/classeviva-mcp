@@ -50,6 +50,10 @@ Le credenziali non fanno parte del plugin. Non salvarle nel repository, in `plug
 
 ## Strumenti MCP
 
+Per l'inventario delle rotte ClasseViva effettivamente usate, delle chiamate
+diagnostiche e delle API non implementate, consulta
+[`docs/classeviva-api.md`](docs/classeviva-api.md).
+
 | Strumento | Uso |
 | --- | --- |
 | `get_setup_status` | Controlla se le credenziali locali sono configurate; non restituisce UID o password. |
