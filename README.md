@@ -56,6 +56,8 @@ Le credenziali non fanno parte del plugin. Non salvarle nel repository, in `plug
 | `begin_credentials_setup` | Avvia la pagina temporanea per inserire le credenziali. |
 | `get_profile` | Legge il profilo dello studente. |
 | `get_agenda` | Legge compiti, lezioni ed eventi per un intervallo di date ISO `YYYY-MM-DD`, inclusivo. Per un giorno usa la stessa data in `from` e `to`. |
+| `list_lessons` | Elenca le lezioni di oggi, di un giorno (`date`) o di un intervallo (`from` e `to`), in formato ISO `YYYY-MM-DD`. |
+| `list_absences` | Elenca le assenze complete, da una data (`from`) o in un intervallo (`from` e `to`), in formato ISO `YYYY-MM-DD`. |
 | `list_noticeboard` | Elenca gli avvisi senza marcarli come letti. |
 | `get_notice_attachment` | Legge un allegato usando `event_code` e `publication_id` dell'avviso. |
 | `list_didactics` | Elenca i materiali didattici. |
@@ -86,6 +88,14 @@ Per compilare il binario per il sistema e l'architettura correnti:
 ```sh
 make build
 ```
+
+Per aggiornare l'installazione personale di Codex dopo modifiche al codice o agli strumenti MCP, esegui:
+
+```sh
+make install-local-plugin
+```
+
+Il comando ricompila il server e reinstalla `classeviva@personal` dalla sorgente locale configurata nel marketplace personale. Tale sorgente deve puntare a questa cartella del repository. Dopo l'installazione apri una nuova conversazione o riavvia Codex, perché gli strumenti disponibili nella conversazione corrente non vengono ricaricati automaticamente.
 
 Il binario Linux amd64 `bin/classeviva` è incluso nel repository per rendere installabile il plugin su Linux senza toolchain Go. Su altri sistemi, `make build` compila un eseguibile nativo a partire dal sorgente; serve Go 1.25 o successivo e `make`.
 

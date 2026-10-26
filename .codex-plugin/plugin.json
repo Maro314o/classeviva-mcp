@@ -1,7 +1,7 @@
 {
   "name": "classeviva",
-  "version": "0.1.4",
-  "description": "Consulta ClasseViva e salva su richiesta i materiali didattici in un percorso locale esplicito.",
+  "version": "0.1.7",
+  "description": "Consulta agenda, lezioni, assenze, bacheca, profilo e materiali didattici ClasseViva; salva su richiesta i materiali in un percorso locale esplicito.",
   "author": {
     "name": "Local developer"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "ClasseViva",
     "shortDescription": "Consulta ClasseViva",
-    "longDescription": "Consulta agenda e compiti, bacheca, profilo e materiali didattici ClasseViva. Su richiesta esplicita, salva singoli materiali in un percorso locale indicato.",
+    "longDescription": "Consulta agenda, compiti, lezioni, assenze, bacheca, profilo e materiali didattici ClasseViva. Su richiesta esplicita, salva singoli materiali in un percorso locale indicato.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [

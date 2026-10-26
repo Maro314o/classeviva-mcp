@@ -1,11 +1,11 @@
 ---
 name: classeviva-setup
-description: Usa il plugin ClasseViva per richieste naturali su compiti, agenda, profilo, bacheca, allegati e materiali didattici, anche se l'utente non nomina ClasseViva o la skill; guida inoltre la prima configurazione delle credenziali.
+description: Usa il plugin ClasseViva per richieste naturali su compiti, lezioni, assenze, agenda, profilo, bacheca, allegati e materiali didattici, anche se l'utente non nomina ClasseViva o la skill; guida inoltre la prima configurazione delle credenziali.
 ---
 
 # ClasseViva
 
-Usa gli strumenti MCP del plugin per leggere i dati scolastici dell'account configurato localmente. Attiva questa skill anche per richieste come «che compiti ho domani?», «cosa ho per venerdì?» o «ci sono nuovi avvisi?», senza chiedere all'utente di nominare il plugin o la skill.
+Usa gli strumenti MCP del plugin per leggere i dati scolastici dell'account configurato localmente. Attiva questa skill anche per richieste come «che compiti ho domani?», «quali lezioni ho domani?», «quanti giorni di assenza ho?» o «ci sono nuovi avvisi?», senza chiedere all'utente di nominare il plugin o la skill.
 
 Se gli strumenti del plugin non sono disponibili nella conversazione corrente, non fingere di aver consultato ClasseViva e non sostituire i dati con supposizioni. Prima verifica che il plugin sia installato e abilitato. Se risulta installato ma il server MCP non si avvia o l'eseguibile è mancante o incompatibile, segui la procedura di compilazione qui sotto prima di concludere che il plugin non è utilizzabile.
 
@@ -42,6 +42,8 @@ Il server della configurazione ascolta solo su `127.0.0.1`; il link è casuale, 
 - `begin_credentials_setup`: crea il link temporaneo per configurare UID e password nel browser locale.
 - `get_profile`: legge il profilo dello studente autenticato.
 - `get_agenda`: legge compiti, eventi e lezioni. Richiede `from` e `to` come date ISO `YYYY-MM-DD`, estremi inclusi. Per un solo giorno usa la stessa data in entrambi i campi.
+- `list_lessons`: elenca le lezioni di oggi se non riceve date, di un singolo giorno con `date`, oppure di un intervallo inclusivo con `from` e `to` in formato ISO `YYYY-MM-DD`. Usalo per richieste specifiche sull'orario o sulle lezioni; usa `get_agenda` per la vista combinata di compiti ed eventi.
+- `list_absences`: elenca i dettagli delle assenze. Senza date restituisce tutti i dati; `from` da solo restituisce i dati a partire da quella data; `from` e `to` insieme delimitano un intervallo inclusivo. Per un giorno usa la stessa data in entrambi i campi.
 - `list_noticeboard`: elenca gli avvisi senza marcarli come letti.
 - `get_notice_attachment`: legge un allegato usando `event_code` e `publication_id` dell'avviso.
 - `list_didactics`: elenca i materiali didattici.
@@ -49,7 +51,7 @@ Il server della configurazione ascolta solo su `127.0.0.1`; il link è casuale, 
 
 `list_didactics` recupera solo i metadati e non scarica gli allegati. Per sapere quali materiali esistono, i loro nomi o altre informazioni già presenti nell’elenco, usa solo `list_didactics`. Per leggere o analizzare un documento, scaricalo prima con `download_didactics_item` e poi apri il file locale. Non esiste un comando che invii il contenuto del documento all’agente senza salvarlo. Specifica sempre il percorso assoluto completo nel comando; se l’utente non ha indicato dove salvarlo, chiedigli il percorso prima di invocare lo strumento. Se il file esiste già, scegli un altro percorso solo dopo averlo concordato con l’utente.
 
-Per «domani», «oggi» o un giorno della settimana, determina prima la data di calendario nel fuso orario dell'utente, se noto, e passala a `get_agenda` nel formato `YYYY-MM-DD`. Se il fuso orario può cambiare il giorno e non è noto, chiedilo.
+Per «domani», «oggi» o un giorno della settimana, determina prima la data di calendario nel fuso orario dell'utente, se noto, e passala a `list_lessons` quando la richiesta riguarda le lezioni, a `list_absences` quando riguarda le assenze, oppure a `get_agenda` quando riguarda compiti o eventi. Usa il formato `YYYY-MM-DD`. Se il fuso orario può cambiare il giorno e non è noto, chiedilo.
 
 ## Limiti
 

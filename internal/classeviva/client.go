@@ -146,6 +146,58 @@ func (c *Client) GetAgenda(ctx context.Context, from, to time.Time) (any, error)
 	return c.getJSON(ctx, path)
 }
 
+// GetLessons returns today's lessons, lessons for one date, or lessons in an
+// inclusive date range. If no dates are supplied, it uses ClasseViva's today
+// endpoint.
+func (c *Client) GetLessons(ctx context.Context, date, from, to *time.Time) (any, error) {
+	if date != nil {
+		if from != nil || to != nil {
+			return nil, errors.New("date cannot be combined with from and to")
+		}
+		path := "/students/" + url.PathEscape(c.student) + "/lessons/" + date.Format("20060102")
+		return c.getJSON(ctx, path)
+	}
+
+	if from == nil && to == nil {
+		return c.getJSON(ctx, "/students/"+url.PathEscape(c.student)+"/lessons/today")
+	}
+	if from == nil || to == nil {
+		return nil, errors.New("from and to must be provided together")
+	}
+	if from.After(*to) {
+		return nil, errors.New("from must be on or before to")
+	}
+	if to.Sub(*from) > 366*24*time.Hour {
+		return nil, errors.New("date range cannot exceed 366 days")
+	}
+
+	path := "/students/" + url.PathEscape(c.student) + "/lessons/" + from.Format("20060102") + "/" + to.Format("20060102")
+	return c.getJSON(ctx, path)
+}
+
+// GetAbsences returns all absence records, records from a start date, or
+// records in an inclusive date range.
+func (c *Client) GetAbsences(ctx context.Context, from, to *time.Time) (any, error) {
+	if from == nil {
+		if to != nil {
+			return nil, errors.New("from is required when to is provided")
+		}
+		return c.getJSON(ctx, "/students/"+url.PathEscape(c.student)+"/absences/details")
+	}
+	if to == nil {
+		return c.getJSON(ctx, "/students/"+url.PathEscape(c.student)+"/absences/details/"+from.Format("20060102"))
+	}
+	if from.After(*to) {
+		return nil, errors.New("from must be on or before to")
+	}
+	if to.Sub(*from) > 366*24*time.Hour {
+		return nil, errors.New("date range cannot exceed 366 days")
+	}
+
+	path := "/students/" + url.PathEscape(c.student) + "/absences/details/" + from.Format("20060102") + "/" + to.Format("20060102")
+	return c.getJSON(ctx, path)
+}
+
 // GetNoticeboard returns current notice-board items without marking them read.
 func (c *Client) GetNoticeboard(ctx context.Context) (any, error) {
 	return c.getJSON(ctx, "/students/"+url.PathEscape(c.student)+"/noticeboard")

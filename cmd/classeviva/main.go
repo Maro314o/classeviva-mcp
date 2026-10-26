@@ -94,6 +94,17 @@ type AgendaInput struct {
 	To   string `json:"to" jsonschema:"End date in ISO format YYYY-MM-DD, inclusive."`
 }
 
+type LessonsInput struct {
+	Date string `json:"date,omitempty" jsonschema:"Optional single day in ISO format YYYY-MM-DD. Leave empty when using from and to."`
+	From string `json:"from,omitempty" jsonschema:"Optional start date in ISO format YYYY-MM-DD. Provide together with to."`
+	To   string `json:"to,omitempty" jsonschema:"Optional end date in ISO format YYYY-MM-DD, inclusive. Provide together with from."`
+}
+
+type AbsencesInput struct {
+	From string `json:"from,omitempty" jsonschema:"Optional start date in ISO format YYYY-MM-DD. Can be used alone or together with to."`
+	To   string `json:"to,omitempty" jsonschema:"Optional end date in ISO format YYYY-MM-DD, inclusive. Provide together with from."`
+}
+
 type NoticeAttachmentInput struct {
 	EventCode     string `json:"event_code" jsonschema:"Event code from a ClasseViva notice-board item."`
 	PublicationID string `json:"publication_id" jsonschema:"Publication ID of the notice-board item."`
@@ -113,7 +124,7 @@ func main() {
 	svc := &service{}
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    "classeviva",
-		Version: "0.1.4",
+		Version: "0.1.7",
 	}, nil)
 
 	mcp.AddTool(server, &mcp.Tool{
@@ -167,6 +178,59 @@ func main() {
 			return nil, nil, err
 		}
 		data, err := client.GetAgenda(ctx, from, to)
+		return nil, data, err
+	})
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "list_lessons",
+		Description: "Elenca le lezioni ClasseViva di oggi, di un singolo giorno o di un intervallo inclusivo. Senza date restituisce oggi; usa date per un giorno oppure from e to insieme. Date ISO YYYY-MM-DD. Strumento di sola lettura.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, input LessonsInput) (*mcp.CallToolResult, any, error) {
+		date, err := parseOptionalISODate("date", input.Date)
+		if err != nil {
+			return nil, nil, err
+		}
+		from, err := parseOptionalISODate("from", input.From)
+		if err != nil {
+			return nil, nil, err
+		}
+		to, err := parseOptionalISODate("to", input.To)
+		if err != nil {
+			return nil, nil, err
+		}
+		if date != nil && (from != nil || to != nil) {
+			return nil, nil, errors.New("date non può essere combinata con from e to")
+		}
+		if date == nil && (from == nil) != (to == nil) {
+			return nil, nil, errors.New("from e to devono essere forniti insieme")
+		}
+		client, err := svc.getClient()
+		if err != nil {
+			return nil, nil, err
+		}
+		data, err := client.GetLessons(ctx, date, from, to)
+		return nil, data, err
+	})
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "list_absences",
+		Description: "Elenca le assenze registrate su ClasseViva. Senza date restituisce tutti i dettagli; con from restituisce i dati da quella data; con from e to restituisce l'intervallo inclusivo. Date ISO YYYY-MM-DD. Strumento di sola lettura.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, input AbsencesInput) (*mcp.CallToolResult, any, error) {
+		from, err := parseOptionalISODate("from", input.From)
+		if err != nil {
+			return nil, nil, err
+		}
+		to, err := parseOptionalISODate("to", input.To)
+		if err != nil {
+			return nil, nil, err
+		}
+		if from == nil && to != nil {
+			return nil, nil, errors.New("from è obbligatorio quando viene fornito to")
+		}
+		client, err := svc.getClient()
+		if err != nil {
+			return nil, nil, err
+		}
+		data, err := client.GetAbsences(ctx, from, to)
 		return nil, data, err
 	})
 
@@ -239,6 +303,17 @@ func main() {
 	if err := server.Run(ctx, &mcp.StdioTransport{}); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func parseOptionalISODate(field, value string) (*time.Time, error) {
+	if value == "" {
+		return nil, nil
+	}
+	parsed, err := time.Parse("2006-01-02", value)
+	if err != nil {
+		return nil, fmt.Errorf("%s deve essere una data ISO valida YYYY-MM-DD", field)
+	}
+	return &parsed, nil
 }
 
 func embeddedFile(label, mimeType string, body []byte) *mcp.CallToolResult {
