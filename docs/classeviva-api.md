@@ -99,13 +99,18 @@ modifica lo stato su ClasseViva. Il suffisso `101` appartiene alla rotta di
 marcatura e non è l'indice dell'allegato.
 
 In una verifica reale, i GET di allegati con `attachNum` corretto hanno
-risposto HTTP 404 con `152:CvvRestApi/access to content not allowed` prima
-della marcatura; dopo un POST di lettura con HTTP 200, gli stessi GET hanno
-restituito i file. La lettura era quindi necessaria per quel caso. Questo
-risultato non dimostra che ogni avviso o account abbia lo stesso vincolo. Se
-un download restituisce il codice `152`, spiegare l'effetto e chiedere il
-consenso prima di qualsiasi marcatura. Non effettuare la marcatura in modo
-automatico dentro `get_notice_attachment`.
+risposto HTTP 404; il body della risposta diretta conteneva
+`152:CvvRestApi/access to content not allowed`. Dopo un POST di lettura con
+HTTP 200, gli stessi GET hanno restituito i file. La lettura era quindi
+necessaria per quel caso. Questo risultato non dimostra che ogni avviso o
+account abbia lo stesso vincolo. Il client MCP di produzione scarta il body
+delle risposte non 2xx e restituisce soltanto un errore HTTP, per esempio
+`ClasseViva request failed with HTTP 404`; non mostra al chiamante il codice
+`152`. Un 404 può anche avere altre cause: prima di ipotizzare lo stato non
+letto, verificare event code, publication ID e `attachNum` nei metadati. Se
+resta plausibile la condizione di lettura, spiegarla come possibilità e
+chiedere il consenso prima di qualsiasi marcatura. Non effettuare la
+marcatura in modo automatico dentro `get_notice_attachment`.
 
 ### API web `/rest/w1`
 

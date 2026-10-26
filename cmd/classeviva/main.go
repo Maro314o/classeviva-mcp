@@ -125,7 +125,7 @@ func main() {
 	svc := &service{}
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    "classeviva",
-		Version: "0.1.13",
+		Version: "0.1.14",
 	}, nil)
 
 	mcp.AddTool(server, &mcp.Tool{
@@ -249,7 +249,7 @@ func main() {
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "get_notice_attachment",
-		Description: "Recupera un allegato usando event_code, publication_id e attach_num da attachments[].attachNum (predefinito 1). Non segna l'avviso come letto. Se ricevi 152:CvvRestApi/access to content not allowed, una verifica ha mostrato che l'avviso non letto può richiedere una marcatura separata; spiega l'effetto e chiedi consenso. Questo MCP non espone un tool di marcatura e il requisito non è confermato per tutti gli avvisi. Strumento di sola lettura.",
+		Description: "Recupera un allegato usando event_code, publication_id e attach_num da attachments[].attachNum (predefinito 1). Non segna l'avviso come letto. Se restituisce HTTP 404 con identificativi verificati, lo stato non letto può essere una causa: una verifica API diretta vide il codice 152, ma il MCP nasconde il body e non può distinguere con certezza la causa. Chiedi consenso prima di qualsiasi marcatura separata; questo MCP non espone il relativo tool. Strumento di sola lettura.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input NoticeAttachmentInput) (*mcp.CallToolResult, any, error) {
 		client, err := svc.getClient()
 		if err != nil {
