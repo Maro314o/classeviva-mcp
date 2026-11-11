@@ -203,6 +203,28 @@ func (c *Client) GetNoticeboard(ctx context.Context) (any, error) {
 	return c.getJSON(ctx, "/students/"+url.PathEscape(c.student)+"/noticeboard")
 }
 
+// MarkNoticeRead changes the remote reading status of one notice.
+func (c *Client) MarkNoticeRead(ctx context.Context, eventCode, publicationID string) error {
+	if err := validatePathPart("event code", eventCode); err != nil {
+		return err
+	}
+	if err := validatePathPart("publication id", publicationID); err != nil {
+		return err
+	}
+	path := "/students/" + url.PathEscape(c.student) + "/noticeboard/read/" + url.PathEscape(eventCode) + "/" + url.PathEscape(publicationID) + "/101"
+	body, _, err := c.authenticatedRequest(ctx, http.MethodPost, apiBaseURL+path, nil)
+	if err != nil {
+		return err
+	}
+	var result map[string]any
+	if json.Unmarshal(body, &result) == nil {
+		if _, failed := result["error"]; failed {
+			return errors.New("ClasseViva returned an API error")
+		}
+	}
+	return nil
+}
+
 // GetDidactics returns the list of didactic materials.
 func (c *Client) GetDidactics(ctx context.Context) (any, error) {
 	return c.getJSON(ctx, "/students/"+url.PathEscape(c.student)+"/didactics")

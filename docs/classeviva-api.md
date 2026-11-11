@@ -38,6 +38,7 @@ https://web.spaggiari.eu/rest/v1
 | `GET /students/{studentId}/absences/details/{from}` | `list_absences` | `from` è `YYYYMMDD`; restituisce i dettagli dalla data indicata. | Lettura. |
 | `GET /students/{studentId}/absences/details/{from}/{to}` | `list_absences` | Date `YYYYMMDD`, intervallo inclusivo; restituisce i dettagli delle assenze. | Lettura. |
 | `GET /students/{studentId}/noticeboard` | `list_noticeboard` | Nessun parametro; restituisce il JSON degli avvisi e dei metadati, inclusi gli indici degli allegati quando presenti. | Lettura; non segna gli avvisi come letti. |
+| `POST /students/{studentId}/noticeboard/read/{eventCode}/{pubId}/101` | `mark_notice_read` | Richiede `event_code` e `publication_id` dai metadati. | Modifica lo stato dell’avviso; richiede consenso esplicito. |
 | `GET /students/{studentId}/noticeboard/attach/{eventCode}/{pubId}/{attachNum}` | `get_notice_attachment` | `attachNum` va preso da `attachments[].attachNum`; nel tool `attach_num` è predefinito a `1`. Il body riuscito viene salvato come byte originali, senza convertirlo in JSON o testo in base al MIME. | Lettura remota; il tool salva il file nel percorso assoluto `destination_path` fornito dall'agente e restituisce percorso, MIME type e dimensione. Non segna l'avviso come letto e non sovrascrive file esistenti. |
 | `GET /students/{studentId}/didactics` | `list_didactics` | Nessun parametro; restituisce il JSON dei materiali didattici e dei metadati. | Lettura. |
 | `GET /students/{studentId}/didactics/item/{contentId}` | `download_didactics_item` | `contentId` proviene da `content_id`; il body riuscito viene trattato come byte originali del file, senza convertirlo in JSON o testo in base al MIME. | Lettura remota; il tool salva il file nel percorso assoluto `destination_path` fornito dall'agente e restituisce percorso, MIME type e dimensione. Non sovrascrive file esistenti. |
@@ -92,17 +93,13 @@ percorso API in `YYYYMMDD`. Gli intervalli sono inclusivi, devono avere
 `date` singola o `from` e `to` insieme. `list_absences` può omettere entrambe
 le date, fornire solo `from` o fornire l'intervallo completo.
 
-## API conosciute ma non esposte come strumenti MCP
-
-### Marcatura di lettura della Bacheca
+## Marcatura di lettura della Bacheca
 
 ```text
 POST /students/{studentId}/noticeboard/read/{eventCode}/{pubId}/101
 ```
 
-Questa rotta è stata usata solo durante una verifica manuale, dopo consenso
-esplicito dell'utente; non è chiamata dal codice di produzione e il server
-MCP non espone un tool per invocarla. Segna l'avviso come letto e quindi
+Questa rotta è esposta dal tool separato `mark_notice_read`, da chiamare solo dopo consenso esplicito dell'utente. Segna l'avviso come letto e quindi
 modifica lo stato su ClasseViva. Il suffisso `101` appartiene alla rotta di
 marcatura e non è l'indice dell'allegato.
 
@@ -119,6 +116,8 @@ letto, verificare event code, publication ID e `attachNum` nei metadati. Se
 resta plausibile la condizione di lettura, spiegarla come possibilità e
 chiedere il consenso prima di qualsiasi marcatura. Non effettuare la
 marcatura in modo automatico dentro `get_notice_attachment`.
+
+## API conosciute ma non esposte come strumenti MCP
 
 ### API web `/rest/w1`
 

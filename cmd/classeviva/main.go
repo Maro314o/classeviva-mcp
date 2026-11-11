@@ -108,6 +108,11 @@ type NoticeAttachmentInput struct {
 	DestinationPath string `json:"destination_path" jsonschema:"Absolute local file path including the filename. Existing files are not overwritten."`
 }
 
+type MarkNoticeReadInput struct {
+	EventCode     string `json:"event_code" jsonschema:"Event code from the noticeboard item."`
+	PublicationID string `json:"publication_id" jsonschema:"Publication ID from the noticeboard item."`
+}
+
 func main() {
 	if len(os.Args) == 2 && os.Args[1] == "--credentials-path" {
 		path, err := classeviva.CredentialsPath()
@@ -122,7 +127,7 @@ func main() {
 	svc := &service{}
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    "classeviva",
-		Version: "0.1.16",
+		Version: "0.1.17",
 	}, nil)
 
 	mcp.AddTool(server, &mcp.Tool{
@@ -245,8 +250,22 @@ func main() {
 	})
 
 	mcp.AddTool(server, &mcp.Tool{
+		Name:        "mark_notice_read",
+		Description: "Segna un singolo avviso della bacheca ClasseViva come letto, modificando lo stato remoto. Richiede consenso esplicito dell'utente prima della chiamata; non scarica allegati. Usa event_code e publication_id dai metadati della bacheca.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, input MarkNoticeReadInput) (*mcp.CallToolResult, any, error) {
+		client, err := svc.getClient()
+		if err != nil {
+			return nil, nil, err
+		}
+		if err := client.MarkNoticeRead(ctx, input.EventCode, input.PublicationID); err != nil {
+			return nil, nil, err
+		}
+		return nil, map[string]bool{"marked_read": true}, nil
+	})
+
+	mcp.AddTool(server, &mcp.Tool{
 		Name:        "get_notice_attachment",
-		Description: "Scarica l'allegato e lo salva nel percorso assoluto destination_path indicato. Restituisce percorso, MIME type e dimensione; non sovrascrive file esistenti. Usa event_code, publication_id e attach_num da attachments[].attachNum (predefinito 1). Non segna l'avviso come letto. Se restituisce HTTP 404 con identificativi verificati, lo stato non letto può essere una causa: una verifica API diretta vide il codice 152, ma il MCP nasconde il body. Chiedi consenso prima di qualsiasi marcatura separata; questo MCP non espone il relativo tool.",
+		Description: "Scarica l'allegato nel percorso assoluto destination_path indicato senza sovrascrivere. Usa event_code, publication_id e attach_num da attachments[].attachNum (predefinito 1). Non segna l'avviso come letto. Se restituisce HTTP 404 con identificativi verificati, lo stato non letto può essere una causa; chiedi consenso prima di usare mark_notice_read separatamente.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input NoticeAttachmentInput) (*mcp.CallToolResult, any, error) {
 		if err := validateDownloadDestination(input.DestinationPath); err != nil {
 			return nil, nil, err

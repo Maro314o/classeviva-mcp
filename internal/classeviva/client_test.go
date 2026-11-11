@@ -6,6 +6,32 @@ import (
 	"testing"
 )
 
+func TestMarkNoticeReadSendsPost(t *testing.T) {
+	var method, path string
+	client := newAbsenceTestClient(func(req *http.Request) {
+		if req.URL.Path != "/rest/v1/auth/login" {
+			method, path = req.Method, req.URL.Path
+		}
+	})
+	if err := client.MarkNoticeRead(context.Background(), "CF", "12345"); err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPost || path != "/rest/v1/students/12345678/noticeboard/read/CF/12345/101" {
+		t.Fatalf("got %s %s", method, path)
+	}
+}
+
+func TestMarkNoticeReadRejectsMissingIdentifiers(t *testing.T) {
+	var requests int
+	client := newAbsenceTestClient(func(*http.Request) { requests++ })
+	if err := client.MarkNoticeRead(context.Background(), "", "12345"); err == nil {
+		t.Fatal("expected validation error")
+	}
+	if requests != 0 {
+		t.Fatalf("got %d requests", requests)
+	}
+}
+
 func TestGetNoticeAttachmentUsesRequestedAttachmentNumber(t *testing.T) {
 	tests := []struct {
 		name   string
