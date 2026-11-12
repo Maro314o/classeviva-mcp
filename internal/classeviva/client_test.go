@@ -136,3 +136,18 @@ func TestStudentIDFromUID(t *testing.T) {
 		})
 	}
 }
+
+func TestListHomeworksUsesReadOnlyEndpoint(t *testing.T) {
+	var method, path string
+	client := newAbsenceTestClient(func(req *http.Request) {
+		if req.URL.Path != "/rest/v1/auth/login" {
+			method, path = req.Method, req.URL.Path
+		}
+	})
+	if _, err := client.ListHomeworks(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet || path != "/rest/v1/students/12345678/homeworks/index" {
+		t.Fatalf("got %s %s", method, path)
+	}
+}

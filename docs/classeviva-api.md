@@ -31,6 +31,7 @@ https://web.spaggiari.eu/rest/v1
 | `POST /auth/login` | Interno al client | Invia i campi `uid`, `pass`, `ident`; estrae `token` dalla risposta JSON. | Crea una sessione API, non modifica dati scolastici. |
 | `GET /students/{studentId}/card` | `get_profile` | Nessun parametro; restituisce il JSON della scheda. | Lettura. |
 | `GET /students/{studentId}/agenda/all/{from}/{to}` | `get_agenda` | Date `YYYYMMDD`, intervallo inclusivo; restituisce il JSON dell'agenda (compiti, eventi e lezioni). | Lettura. |
+| `GET /students/{studentId}/homeworks/index` | `list_homeworks` | Elenco separato dei compiti con date di assegnazione e scadenza; nessun filtro server. | Lettura, non modifica lo stato. |
 | `GET /students/{studentId}/lessons/today` | `list_lessons` | Nessun parametro; restituisce il JSON delle lezioni del giorno scelto dal servizio. | Lettura. |
 | `GET /students/{studentId}/lessons/{date}` | `list_lessons` | `date` è `YYYYMMDD`; restituisce il JSON delle lezioni di quel giorno. | Lettura. |
 | `GET /students/{studentId}/lessons/{from}/{to}` | `list_lessons` | Date `YYYYMMDD`, intervallo inclusivo; restituisce il JSON delle lezioni. | Lettura. |

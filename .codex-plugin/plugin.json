@@ -1,6 +1,6 @@
 {
   "name": "classeviva",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Consulta agenda, lezioni, assenze e bacheca ClasseViva; salva allegati e materiali didattici nel percorso locale indicato.",
   "author": {
     "name": "Local developer"

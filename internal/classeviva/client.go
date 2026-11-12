@@ -134,6 +134,11 @@ func (c *Client) GetProfile(ctx context.Context) (any, error) {
 	return c.getJSON(ctx, "/students/"+url.PathEscape(c.student)+"/card")
 }
 
+// ListHomeworks returns the separate homework index without changing completion state.
+func (c *Client) ListHomeworks(ctx context.Context) (any, error) {
+	return c.getJSON(ctx, "/students/"+url.PathEscape(c.student)+"/homeworks/index")
+}
+
 // GetAgenda returns agenda entries for an inclusive date range.
 func (c *Client) GetAgenda(ctx context.Context, from, to time.Time) (any, error) {
 	if from.After(to) {

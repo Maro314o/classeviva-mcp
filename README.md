@@ -71,7 +71,8 @@ diagnostiche e delle API non implementate, consulta
 | `get_setup_status` | Controlla se le credenziali locali sono configurate; non restituisce UID o password. |
 | `begin_credentials_setup` | Avvia la pagina temporanea per inserire le credenziali. |
 | `get_profile` | Legge il profilo dello studente. |
-| `get_agenda` | Legge compiti, lezioni ed eventi per un intervallo di date ISO `YYYY-MM-DD`, inclusivo. Per un giorno usa la stessa data in `from` e `to`. |
+| `get_agenda` | Legge eventi e annotazioni dell’agenda per un intervallo di date ISO `YYYY-MM-DD`, inclusivo. Per un giorno usa la stessa data in `from` e `to`. |
+| `list_homeworks` | Legge tutte le consegne della sezione Compiti, comprese date di assegnazione e scadenza, senza modificarle. Per cercare compiti consulta anche `get_agenda`. |
 | `list_lessons` | Elenca le lezioni di oggi, di un giorno (`date`) o di un intervallo (`from` e `to`), in formato ISO `YYYY-MM-DD`. |
 | `list_absences` | Elenca le assenze complete, da una data (`from`) o in un intervallo (`from` e `to`), in formato ISO `YYYY-MM-DD`. |
 | `list_noticeboard` | Elenca gli avvisi senza marcarli come letti. |

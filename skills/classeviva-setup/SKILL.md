@@ -37,7 +37,8 @@ Il server della configurazione ascolta solo su `127.0.0.1`; il link è casuale, 
 - `get_setup_status`: verifica se esiste una configurazione utilizzabile. Non restituisce credenziali.
 - `begin_credentials_setup`: crea il link temporaneo per configurare UID e password nel browser locale.
 - `get_profile`: legge il profilo dello studente autenticato.
-- `get_agenda`: legge compiti, eventi e lezioni. Richiede `from` e `to` come date ISO `YYYY-MM-DD`, estremi inclusi. Per un solo giorno usa la stessa data in entrambi i campi.
+- `list_homeworks`: legge la sezione Compiti separata dall’agenda; restituisce tutte le consegne disponibili, con `assignmentDate` e `expiryDate`, senza segnare nulla come fatto.
+- `get_agenda`: legge eventi e annotazioni dell’agenda. Richiede `from` e `to` come date ISO `YYYY-MM-DD`, estremi inclusi. Per un solo giorno usa la stessa data in entrambi i campi.
 - `list_lessons`: elenca le lezioni di oggi se non riceve date, di un singolo giorno con `date`, oppure di un intervallo inclusivo con `from` e `to` in formato ISO `YYYY-MM-DD`. Usalo per richieste specifiche sull'orario o sulle lezioni; usa `get_agenda` per la vista combinata di compiti ed eventi.
 - `list_absences`: elenca i dettagli delle assenze. Senza date restituisce tutti i dati; `from` da solo restituisce i dati a partire da quella data; `from` e `to` insieme delimitano un intervallo inclusivo. Per un giorno usa la stessa data in entrambi i campi.
 - `list_noticeboard`: elenca gli avvisi senza marcarli come letti.
@@ -47,6 +48,8 @@ Il server della configurazione ascolta solo su `127.0.0.1`; il link è casuale, 
 - `download_didactics_item`: scarica e salva il materiale didattico nel percorso assoluto completo `destination_path`. Richiede `content_id` e `destination_path`; restituisce percorso, MIME type e dimensione, e non sovrascrive file esistenti.
 
 `list_didactics` recupera solo i metadati e non scarica gli allegati. Per sapere quali materiali esistono, i loro nomi o altre informazioni già presenti nell’elenco, usa solo `list_didactics`. Per scaricare, leggere o analizzare un documento, usa `download_didactics_item` indicando un percorso assoluto completo, poi apri il file locale restituito. Se l’utente non indica dove salvarlo, chiedi il percorso prima della chiamata. Il tool non sovrascrive file esistenti.
+
+Quando l’utente chiede compiti o consegne, consulta sempre sia `list_homeworks` sia `get_agenda`: le consegne possono comparire in una sola delle due fonti. Filtra i compiti per `expiryDate` (scadenza), non per `assignmentDate`; valuta le annotazioni dell’agenda e segnala eventuali duplicati senza ripeterli. Se una fonte fallisce o manca una data, dichiaralo e non concludere che non ci siano compiti.
 
 Per «domani», «oggi» o un giorno della settimana, determina prima la data di calendario nel fuso orario dell'utente, se noto, e passala a `list_lessons` quando la richiesta riguarda le lezioni, a `list_absences` quando riguarda le assenze, oppure a `get_agenda` quando riguarda compiti o eventi. Usa il formato `YYYY-MM-DD`. Se il fuso orario può cambiare il giorno e non è noto, chiedilo.
 

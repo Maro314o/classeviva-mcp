@@ -127,7 +127,7 @@ func main() {
 	svc := &service{}
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    "classeviva",
-		Version: "0.1.17",
+		Version: "0.1.18",
 	}, nil)
 
 	mcp.AddTool(server, &mcp.Tool{
@@ -166,7 +166,7 @@ func main() {
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "get_agenda",
-		Description: "Legge compiti, eventi e lezioni dell'agenda ClasseViva per l'intervallo richiesto. Per un giorno singolo, usa la stessa data in from e to. Date ISO YYYY-MM-DD. Strumento di sola lettura.",
+		Description: "Legge eventi e annotazioni dell'agenda nell'intervallo ISO inclusivo. Per cercare compiti consulta anche list_homeworks. Strumento di sola lettura.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input AgendaInput) (*mcp.CallToolResult, any, error) {
 		from, err := time.Parse("2006-01-02", input.From)
 		if err != nil {
@@ -181,6 +181,18 @@ func main() {
 			return nil, nil, err
 		}
 		data, err := client.GetAgenda(ctx, from, to)
+		return nil, data, err
+	})
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "list_homeworks",
+		Description: "Legge la sezione Compiti di ClasseViva, separata dall'agenda. Restituisce tutti i compiti disponibili con assignmentDate e expiryDate; filtra per scadenza. Per una ricerca completa consulta anche get_agenda. Sola lettura, non segna i compiti come fatti.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ EmptyInput) (*mcp.CallToolResult, any, error) {
+		client, err := svc.getClient()
+		if err != nil {
+			return nil, nil, err
+		}
+		data, err := client.ListHomeworks(ctx)
 		return nil, data, err
 	})
 
